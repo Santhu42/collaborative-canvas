@@ -1,4 +1,3 @@
-const path = require("path");
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -6,53 +5,42 @@ const { getRoom } = require("./rooms");
 
 const app = express();
 const server = http.createServer(app);
-
-app.use(express.static(path.join(__dirname, "../client")));
-
 const io = new Server(server, {
   cors: { origin: "*" }
 });
 
+// Serve frontend
+app.use(express.static("client"));
+
 io.on("connection", socket => {
-  socket.on("join-room", rawRoomId => {
-    // 🔥 getRoom returns normalized room instance
-    const room = getRoom(rawRoomId);
-    const roomId = room.roomId; // normalized ID
-
-    console.log(
-      `🧠 Join room: raw="${rawRoomId}" normalized="${roomId}"`
-    );
-
+  socket.on("join-room", roomId => {
+    const room = getRoom(roomId);
     socket.join(roomId);
 
-    // Send persisted state
+    // Send full state to new user
     socket.emit("sync", room.history);
 
+    // Live draw
     socket.on("draw", op => {
       room.add(op);
-      socket.to(roomId).emit("draw-op", op);
+      socket.to(roomId).emit("draw", op);
     });
 
     socket.on("undo", () => {
-      const state = room.undo();
-      io.to(roomId).emit("sync", state);
+      io.to(roomId).emit("sync", room.undo());
     });
 
     socket.on("redo", () => {
-      const state = room.redo();
-      io.to(roomId).emit("sync", state);
+      io.to(roomId).emit("sync", room.redo());
     });
 
-    socket.on("ping-check", t =>
-      socket.emit("pong-check", t)
-    );
-
-    socket.on("disconnect", () => {
-      console.log(`❌ Left room ${roomId}`);
+    socket.on("ping-check", t => {
+      socket.emit("pong-check", t);
     });
   });
 });
 
-server.listen(3000, () =>
-  console.log("✅ App running at http://localhost:3000")
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () =>
+  console.log(`✅ Server running on port ${PORT}`)
 );

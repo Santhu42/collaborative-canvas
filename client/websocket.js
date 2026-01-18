@@ -1,9 +1,8 @@
 /* global io */
 
-// DO NOT put localhost or any URL here
 export const socket = io({
   autoConnect: false,
-  transports: ["websocket"] // avoids polling fallback
+  transports: ["websocket"]
 });
 
 export function initSocket(roomId, handlers) {
@@ -12,15 +11,15 @@ export function initSocket(roomId, handlers) {
   socket.connect();
 
   socket.on("connect", () => {
-    console.log("✅ Connected to server:", socket.id);
+    console.log("✅ Connected:", socket.id);
     socket.emit("join-room", roomId);
   });
 
+  // 🔥 LIVE draw events
   socket.on("draw", handlers.draw);
-  socket.on("sync", handlers.sync);
-  socket.on("pong-check", handlers.pong);
 
-  socket.on("connect_error", err => {
-    console.error("❌ Socket connection error:", err.message);
-  });
+  // 🔥 Full sync (undo / redo / join)
+  socket.on("sync", handlers.sync);
+
+  socket.on("pong-check", handlers.pong);
 }
