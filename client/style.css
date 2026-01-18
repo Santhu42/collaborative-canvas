@@ -1,0 +1,21 @@
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: Arial;
+}
+
+#toolbar {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  background: white;
+  padding: 8px;
+  border-radius: 6px;
+  z-index: 10;
+  touch-action: manipulation;
+}
+
+canvas {
+  display: block;
+  touch-action: none;
+}
