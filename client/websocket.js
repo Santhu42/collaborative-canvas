@@ -1,27 +1,26 @@
-export const socket = io("http://localhost:3000", {
-  autoConnect: false
+/* global io */
+
+// DO NOT put localhost or any URL here
+export const socket = io({
+  autoConnect: false,
+  transports: ["websocket"] // avoids polling fallback
 });
 
 export function initSocket(roomId, handlers) {
-  // Remove old listeners (Live reload safety)
   socket.removeAllListeners();
 
   socket.connect();
 
-  // 🔥 WAIT for actual connection
   socket.on("connect", () => {
-    console.log("🔌 Socket connected:", socket.id);
-    console.log("📡 Joining room:", roomId);
-
+    console.log("✅ Connected to server:", socket.id);
     socket.emit("join-room", roomId);
   });
 
-  // Incremental draw (NO redraw)
-  socket.on("draw-op", handlers.draw);
-
-  // Full sync (join / undo / redo)
+  socket.on("draw", handlers.draw);
   socket.on("sync", handlers.sync);
-
-  // Latency
   socket.on("pong-check", handlers.pong);
+
+  socket.on("connect_error", err => {
+    console.error("❌ Socket connection error:", err.message);
+  });
 }
