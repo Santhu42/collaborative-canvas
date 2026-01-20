@@ -95,5 +95,3 @@ Designed to be simple, readable, and interview-ready
 📜 License
 
 This project is created for educational and evaluation purposes.
-
-✅ Next Steps (Optional)
