@@ -1,6 +1,6 @@
 ### Real-Time Collaborative Drawing Canvas – Architecture Overview
 
-This document explains the architectural decisions, data flow, real-time communication protocol, and conflict-handling strategies used in the collaborative drawing application.
+This document describes the architecture, data flow, WebSocket communication, undo/redo strategy, performance optimizations, conflict resolution, and mobile support used in the collaborative drawing application.
 
 1. Data Flow Diagram
 
